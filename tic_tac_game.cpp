@@ -1,7 +1,8 @@
-#include <iostream>		// Include this for standard I/O and other functions
-#include <cstring>		// Include this for getline function
-#include <cctype> 		// Include this for isalpha function
-#include <conio.h>		// Include this for getche function
+#include <iostream>		// For standard I/O and other functions
+#include <cstring>		// For getline function
+#include <cctype> 		// For isalpha function
+#include <conio.h>		// For getche function
+#include <limits>		// For numeric_limits function
 
 using namespace std;
 
@@ -37,6 +38,7 @@ public:
 class Board {
 private:
 	char board[3][3];
+	int getValidLocation();
 public:
 	void clearBoard();
 	void showBoard();
@@ -63,7 +65,6 @@ private:
 public:
 	void playGame();
 };
-
 
 
 /////////////////////////////
@@ -166,6 +167,26 @@ char Player::getSymbol() {
 // Functions (Definition) - Board
 ////////////////////////////////////////
 
+// Function to get a valid location to place a symbol
+int Board::getValidLocation(){
+	int number;
+	while(true){
+		cout << "Enter the location (1-9)>> ";
+		cin >> number;
+		
+		// Error case
+		if (cin.fail()){
+			cin.clear();	// Clear the error flag
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');	// Discard the invalid input
+		}
+		// Check if the number is in range or not
+		else if (number > 0 && number <= 9) {
+			break;
+		}
+	}
+	return number;
+}
+
 // Function to clear the board
 void Board::clearBoard() {
 	char num = '1';
@@ -204,9 +225,8 @@ void Board::placeSymbol(char symbol) {
 	bool valid;
 	// Force player to enter valid number
 	do {
-		// Get location
-		cout << "Enter a number (1-9)>> ";
-		cin >> num;
+		// Get Location
+		num = this->getValidLocation();
 
 		// Caculcate coordinates
 		i = (num - 1) / 3;
@@ -217,7 +237,7 @@ void Board::placeSymbol(char symbol) {
 
 		// Prints a warning
 		if (!valid)
-			cout << "Please enter valid number or make sure that the desired place is empty!\n" << num << " is incorrect." << endl;
+			cout << "Please make sure that the desired place is empty!\nThe board at " << i << ", " << j << " already contain " << '\"' << this->getSymbol(i, j) << '\"' << endl;
 	} while (!valid);
 	this->board[i][j] = symbol;
 }
