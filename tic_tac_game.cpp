@@ -122,6 +122,7 @@ void printHeading(string title, int line_size)
 	printChars('*', line_size);
 	cout << title << endl;
 	printChars('*', line_size);
+	cout << endl;
 }
 
 
@@ -299,7 +300,6 @@ int Game::getTurn() {
 void Game::showResult(char symbol) {
 	clear();
 	printHeading("Result", 35);
-	cout << endl;
 	this->board.showBoard();
 	cout << '\n';
 	if (symbol == '!')	// Draw
@@ -329,7 +329,6 @@ void Game::playGame() {
 
 		// Show the name of the player
 		printHeading(this->players[this->getTurn()].getName() + "'s Turn", 35);
-		cout << endl;
 
 		// Show the board
 		board.showBoard();
