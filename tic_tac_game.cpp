@@ -13,6 +13,7 @@ bool isValidName(string);
 bool isValidSymbol(char);
 void clear();
 void printChars(char, int);
+void printHeading(string, int);
 
 
 /////////////////////////////
@@ -85,8 +86,11 @@ int main() {
 
 // Function to check whether the name is valid or not
 bool isValidName(string _name) {
+	int countWhitespace = 0;
 	for (unsigned int i = 0; i < _name.length(); i++) {
-		if (!isalpha(_name[i]))
+		if (countWhitespace == 0 && _name[i] == ' ')
+			countWhitespace++;
+		else if (!isalpha(_name[i]))
 			return false;
 	}
 	return true;
@@ -112,6 +116,14 @@ void clear() {
 	system("cls");
 }
 
+// Function to print heading
+void printHeading(string title, int line_size)
+{
+	printChars('*', line_size);
+	cout << title << endl;
+	printChars('*', line_size);
+}
+
 
 ////////////////////////////////////////
 // Functions (Definition) - Player
@@ -131,7 +143,7 @@ void Player::setName() {
 		if (nm.length() > 0 && valid)
 			this->name = nm;
 		else
-			cout << "Each letter of name must be in A-Z or a-z!" << endl;
+			cout << "Each letter of a name must be in A-Z or a-z, and multiple consecutive whitespaces are not acceptable!" << endl;
 	} while (nm.length() == 0 || !valid);
 }
 
@@ -267,9 +279,7 @@ void Game::setEnvironment() {
 	// Getting players information
 	for (int i = 0; i < 2; i++) {
 		// Message
-		printChars('*', 30);
-		cout << "Data of Player " << i + 1 << endl;
-		printChars('*', 30);
+		printHeading("Data of Player " + to_string(i+1), 30);
 
 		// Get data
 		players[i].setName();
@@ -288,9 +298,11 @@ int Game::getTurn() {
 
 void Game::showResult(char symbol) {
 	clear();
+	printHeading("Result", 35);
+	cout << endl;
 	this->board.showBoard();
 	cout << '\n';
-	if (symbol == 'D')	// Draw
+	if (symbol == '!')	// Draw
 		cout << "The game is draw";
 	else {				// Winner
 		cout << "Winner is ";
@@ -316,9 +328,7 @@ void Game::playGame() {
 		clear();
 
 		// Show the name of the player
-		printChars('*', 20);
-		cout << this->players[this->getTurn()].getName() << "'s Turn" << endl;
-		printChars('*', 20);
+		printHeading(this->players[this->getTurn()].getName() + "'s Turn", 35);
 		cout << endl;
 
 		// Show the board
