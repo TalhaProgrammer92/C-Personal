@@ -11,9 +11,10 @@ using namespace std;
 /////////////////////////////
 bool isValidName(string);
 bool isValidSymbol(char);
+string getCharsSequence(char, int);
 void clear();
 void printChars(char, int);
-void printHeading(string, int);
+void printColoredText(string, string, string, bool, bool, bool);
 
 
 /////////////////////////////
@@ -22,14 +23,14 @@ void printHeading(string, int);
 class Player {
 private:
 	string name;
-	char symbol;
+	string symbol;
 public:
 	// Setters
 	void setName();
 	void setSymbol();
 	// Getters
 	string getName();
-	char getSymbol();
+	string getSymbol();
 };
 
 
@@ -38,13 +39,13 @@ public:
 /////////////////////////////
 class Board {
 private:
-	char board[3][3];
+	string board[3][3];
 	int getValidLocation();
 public:
 	void clearBoard();
 	void showBoard();
-	void placeSymbol(char);
-	char getSymbol(int, int);
+	void placeSymbol(string);
+	string getSymbol(int, int);
 	bool isFilled();
 };
 
@@ -61,8 +62,8 @@ private:
 
 	void setEnvironment();
 	int getTurn();
-	char findWinner();
-	void showResult(char);
+	string findWinner();
+	void showResult(string);
 public:
 	void playGame();
 };
@@ -97,18 +98,19 @@ bool isValidName(string _name) {
 }
 
 // Function to check whether the symbol is valid or not
-bool isValidSymbol(char _symbol) {
-	if (isalpha(_symbol))
+bool isValidSymbol(string _symbol) {
+	if (isalpha(_symbol[0]) && _symbol.length() == 1)
 		return true;
 	return false;
 }
 
 // Funciton to print chars in specific range
-void printChars(char character, int range) {
+string getCharsSequence(char character, int range) {
+	string seq = "";
 	for (int i = 0; i < range; i++) {
-		cout << character;
+		seq += character;
 	}
-	cout << endl;
+	return seq;
 }
 
 // Function to clear the screen
@@ -119,10 +121,49 @@ void clear() {
 // Function to print heading
 void printHeading(string title, int line_size)
 {
-	printChars('*', line_size);
-	cout << title << endl;
-	printChars('*', line_size);
+	string stars = getCharsSequence('*', line_size);
+	printColoredText(stars, "34", "40", false, false, false);
 	cout << endl;
+	printColoredText(title, "32", "40", true, false, false);
+	cout << endl;
+	printColoredText(stars, "34", "40", false, false, false);
+	cout << "\n\n";
+}
+
+// Function to display colored output
+void printColoredText(string text, string fg_color, string bg_color, bool bold, bool italic, bool underline) {
+/*
+
+	Foreground Colors:
+	
+	30: Black
+	31: Red
+	32: Green
+	33: Yellow
+	34: Blue
+	35: Magenta
+	36: Cyan
+	37: White
+	
+	Background Colors:
+	
+	40: Black
+	41: Red
+	42: Green
+	43: Yellow
+	44: Blue
+	45: Magenta
+	46: Cyan
+	47: White
+	
+*/
+	string color_code = "\033[";
+	if (bold) color_code += "1;";
+	if (italic) color_code += "3;";
+	if (underline) color_code += "4;";
+	color_code += fg_color + ";" + bg_color + "m";
+	cout << color_code << text << "\033[0m";
+	// Example: printColoredText("This text is red and bold.", "31", "40", true, false, false);
 }
 
 
@@ -138,31 +179,31 @@ void Player::setName() {
 
 	// Force the player to enter valid name
 	do {
-		cout << "Enter name>> ";
+		printColoredText("Enter name>> ", "36", "40", false, false, false);
 		getline(cin, nm);
 		valid = isValidName(nm);
 		if (nm.length() > 0 && valid)
 			this->name = nm;
 		else
-			cout << "Each letter of a name must be in A-Z or a-z, and multiple consecutive whitespaces are not acceptable!" << endl;
+			printColoredText("Each letter of a name must be in A-Z or a-z, and multiple consecutive whitespaces are not acceptable!\n", "31", "40", false, true, true);
 	} while (nm.length() == 0 || !valid);
 }
 
 // Function to set valid symbol of the player
 void Player::setSymbol() {
 	// Variables
-	char sm;
+	string sm;
 	bool valid;
 
 	// Force the player to enter valid symbol
 	do {
-		cout << "Enter symbol>> ";
-		sm = getche();
+		printColoredText("Enter symbol>> ", "36", "40", false, false, false);
+		getline(cin, sm);
 		valid = isValidSymbol(sm);
 		if (valid)
 			this->symbol = sm;
 		else
-			cout << "Symbol must be in A-Z or a-z!" << endl;
+			printColoredText("Symbol must be in A-Z or a-z!\n", "31", "40", false, true, true);
 	} while (!valid);
 }
 
@@ -172,7 +213,7 @@ string Player::getName() {
 }
 
 // Function to get symbol of the player
-char Player::getSymbol() {
+string Player::getSymbol() {
 	return this->symbol;
 }
 
@@ -184,7 +225,7 @@ char Player::getSymbol() {
 int Board::getValidLocation(){
 	int number;
 	while(true){
-		cout << "Enter the location (1-9)>> ";
+		printColoredText("Enter the location (1-9)>> ", "36", "40", false, false, false);
 		cin >> number;
 		
 		// Error case
@@ -202,11 +243,11 @@ int Board::getValidLocation(){
 
 // Function to clear the board
 void Board::clearBoard() {
-	char num = '1';
+	string num = "1";
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
 			this->board[i][j] = num;
-			num++;
+			num[0]++;
 		}
 	}
 }
@@ -216,26 +257,26 @@ void Board::showBoard() {
 	for (int i = 0; i < 3; i++) {
 		// Print symbol
 		for (int j = 0; j < 3; j++) {
-			cout << ' ' << this->board[i][j] << ' ';
+			printColoredText(" " + this->board[i][j] + " ", "34", "40", true, false, false); 
 			if (j < 2)
-				cout << '|';
+				printColoredText("|", "33", "40", true, false, false);
 		}
 		cout << endl;
 
 		// Print line-break
 		for (int j = 0; j < 3; j++) {
-			cout << "---";
+			printColoredText("---", "33", "40", true, false, false);
 			if (j < 2)
-				cout << '|';
+				printColoredText("|", "33", "40", true, false, false);
 		}
 		cout << endl;
 	}
 }
 
 // Function to place symbol at desired location and return true if succeed
-void Board::placeSymbol(char symbol) {
+void Board::placeSymbol(string symbol) {
 	int i, j, num;
-	bool valid;
+	bool is_empty;
 	// Force player to enter valid number
 	do {
 		// Get Location
@@ -246,17 +287,19 @@ void Board::placeSymbol(char symbol) {
 		j = (num - 1) % 3;
 
 		// Check validity
-		valid = !isValidSymbol(this->getSymbol(i, j));
+		is_empty = !isValidSymbol(this->getSymbol(i, j));
 
 		// Prints a warning
-		if (!valid)
-			cout << "Please make sure that the desired place is empty!\nThe board at " << i << ", " << j << " already contain " << '\"' << this->getSymbol(i, j) << '\"' << endl;
-	} while (!valid);
+		if (!is_empty){
+			string msg = "Please make sure that the desired place is empty!\nThe board at " + to_string(i) + ", " + to_string(j) + " already contain " + "\"" + this->getSymbol(i, j) + "\"";
+			printColoredText(msg, "31", "40", false, true, false);
+		}
+	} while (!is_empty);
 	this->board[i][j] = symbol;
 }
 
 // Function to get symbol from desired location
-char Board::getSymbol(int i, int j) {
+string Board::getSymbol(int i, int j) {
 	return this->board[i][j];
 }
 
@@ -297,27 +340,29 @@ int Game::getTurn() {
 	return this->move % 2;
 }
 
-void Game::showResult(char symbol) {
+void Game::showResult(string symbol) {
 	clear();
+	string msg;
 	printHeading("Result", 35);
 	this->board.showBoard();
 	cout << '\n';
-	if (symbol == '!')	// Draw
-		cout << "The game is draw";
+	if (symbol == "~")	// Draw
+		msg = "It is a Tie";
 	else {				// Winner
-		cout << "Winner is ";
+		msg = "Winner is ";
 
 		// Decide who is winner
 		(symbol == this->players[0].getSymbol()) ?
-		cout << this->players[0].getName() : cout << this->players[1].getName();
+		msg += this->players[0].getName() : msg += this->players[1].getName();
 	}
-	cout << '!' << endl;
+	msg += "!";
+	printColoredText(msg, "35", "40", true, true, false);
 }
 
 // Function to play the game
 void Game::playGame() {
 	// Variable
-	char winner;
+	string winner;
 
 	// Setting up the environment
 	this->setEnvironment();
@@ -343,7 +388,7 @@ void Game::playGame() {
 		this->move++;
 
 		// Check for game over
-		if (winner != '~')
+		if (winner != "~")
 			this->game_over = true;
 	}
 
@@ -355,9 +400,9 @@ void Game::playGame() {
 // '!' for Draw
 // '~' for niether draw nor won
 // A-Z or a-z found a winner
-char Game::findWinner() {
+string Game::findWinner() {
 	// Variable
-	char winner = '~';
+	string winner = "~";
 
 	// Row & Column
 	for (int i = 0; i < 3; i++) {
@@ -378,8 +423,8 @@ char Game::findWinner() {
 	}
 
 	// Draw
-	if (this->board.isFilled() && winner == '~')
-		winner = '!';
+	if (this->board.isFilled() && winner == "~")
+		winner = "!";
 
 	return winner;
 }
