@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
@@ -7,9 +8,9 @@ using namespace std;
 ////////////////////////
 class Complex {
 public:
-	int real, imaginary;
+	double real, imaginary;
 	
-	Complex(int r = 0, int i = 0) {
+	Complex(double r = 0, double i = 0) {
 		this->real = r;
 		this->imaginary = i;
 	}
@@ -38,16 +39,23 @@ public:
 	}
 	
 	Complex operator*(const Complex& obj){
+		/*
+		(a + bi) * (c + di) = ac + adi + bci + bdi2 = ac - bd + (ad + bc)i
+		*/
 		Complex result;
-		result.real = this->real * obj.real;
-		result.imaginary = this->imaginary * obj.imaginary;
+		result.real = this->real * obj.real - this->imaginary * obj.imaginary;
+		result.imaginary = this->real * obj.imaginary + this->imaginary * obj.real;
 		return result;
 	}
 	
 	Complex operator/(const Complex& obj){
+		/*
+		(a + bi) / (c + di) = [(a + bi) / (c + di)] * [(c - di) / (c - di)] = [(a + bi) * (c - di)] / [(c + di)(c - di)]
+		= (ac - adi + bci - bdi2) / [c2 - (di)2] = [ac + db + (bc - ad)i] / (c2 + d2) = [(ac + bd) / (c2 + d2)] + [(bc - ad) / (c2 + d2)]i   
+		*/
 		Complex result;
-		result.real = this->real / obj.real;
-		result.imaginary = this->imaginary / obj.imaginary;
+		result.real = (this->real * obj.real + this->imaginary * obj.imaginary) / (pow(obj.real, 2) + pow(obj.imaginary, 2));
+		result.imaginary = (this->imaginary * obj.real - this->real * obj.imaginary) / (pow(obj.real, 2) + pow(obj.imaginary, 2));
 		return result;
 	}
 };
