@@ -17,11 +17,11 @@ Important: Must create a file name "user_info.txt" and write:
 //////////////////////////////
 // Misc - Functions
 //////////////////////////////
-string currentTime();								// To get current date and time as string
-vector<string> readFile(const string&);				// To read from a file
+string currentTime();					// To get current date and time as string
+vector<string> readFile(const string&);			// To read from a file
 void writeToFile(const string&, const string&);		// To write to a file
-void userAuthentication();							// For user authentication
-void hold();										// Hold user on a screen untill he press a key
+void userAuthentication();				// For user authentication
+void hold();						// Hold user on a screen untill he press a key
 
 
 //////////////////////////////
@@ -29,19 +29,19 @@ void hold();										// Hold user on a screen untill he press a key
 //////////////////////////////
 class Account {
 private:
-	unsigned int Id;			// For unique identifier
-	string name;				// Account Name
+	unsigned int Id;		// For unique identifier
+	string name;			// Account Name
 	unsigned long int balance;	// Account Balance
-	string type;				// Type: saving, checking, etc
+	string type;			// Type: saving, checking, etc
 
 public:
-	Account (unsigned int, string, string);					// Constructor
-	void deposit(unsigned long int);						// To deposit money
-	unsigned long int withdraw(unsigned long int);			// To withdraw the money
-	bool transfer(Account, unsigned long int);				// To transfer money into another account
-	void displayInfo();										// To display account's information
-	unsigned int getId();									// To get id of the account
-	unsigned long int getCurrentBalance();					// To get current balance
+	Account (unsigned int, string, string);			// Constructor
+	void deposit(unsigned long int);			// To deposit money
+	unsigned long int withdraw(unsigned long int);		// To withdraw the money
+	bool transfer(Account, unsigned long int);		// To transfer money into another account
+	void displayInfo();					// To display account's information
+	unsigned int getId();					// To get id of the account
+	unsigned long int getCurrentBalance();			// To get current balance
 };
 
 
@@ -50,16 +50,16 @@ public:
 //////////////////////////////
 class Transaction {
 private:
-	unsigned int Id;			// For unique identifier
+	unsigned int Id;		// For unique identifier
 	unsigned int account_id;	// Associated Account
-	string type;				// Such as deposit, withdraw and transfer
+	string type;			// Such as deposit, withdraw and transfer
 	unsigned long int amount;	// The transaction amount
-	string data_time;			// To store the time and date of the transaction
+	string data_time;		// To store the time and date of the transaction
 
 public:
 	Transaction (unsigned int, unsigned int, string, unsigned long int);	// Constructor
-	void displayInfo();														// Display transaction information
-	unsigned int getAccountId();											// To get account id
+	void displayInfo();			// Display transaction information
+	unsigned int getAccountId();		// To get account id
 };
 
 
@@ -72,21 +72,21 @@ private:
 	vector<Transaction> transactions;
 	unsigned int transaction_id_counter, current_account_id;
 
-	bool isValidId(unsigned int);					// To check whether the given account id is valid or not
+	bool isValidId(unsigned int);				// To check whether the given account id is valid or not
 	unsigned int getAccountIndex(unsigned int);		// To get the index of specific account id
 
 public:
 	Bank ();
 
 	void createAccount();				// To create a new account
-	void openAccount();					// Open an existing account
+	void openAccount();				// Open an existing account
 
-	void deposit();						// To deposit money to a specific account
-	void withdraw();					// To withdraw money from a specific account
-	void transfer();					// To transfer money between two accounts
+	void deposit();					// To deposit money to a specific account
+	void withdraw();				// To withdraw money from a specific account
+	void transfer();				// To transfer money between two accounts
 
 	void displayAccountInfo();			// To display all the information of specific account
-	void displayTransactionHistory();	// To display all the transaction history
+	void displayTransactionHistory();		// To display all the transaction history
 };
 
 
@@ -99,10 +99,10 @@ private:
 	string password;	// Password to be set by the user
 
 public:
-	User (string, string);	// Constructor
+	User (string, string);		// Constructor
 
 	void loginUser();		// Login an old user
-	void registerUser();	// Register a new user
+	void registerUser();		// Register a new user
 };
 
 
