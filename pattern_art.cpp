@@ -1,142 +1,166 @@
 #include <iostream>
 #include <vector>
-#include <cstring>
 
 using namespace std;
 
 
-//////////////////
-////// ANSI //////
-//////////////////
-enum class ForegroundColor {
-	Black,
-	Red,
-	Green,
-	Yellow,
-	Blue,
-	Magenta,
-	Cyan,
-	White,
-	Reset
-};
-
-enum class BackgroundColor {
-	Black,
-	Red,
-	Green,
-	Yellow,
-	Blue,
-	Magenta,
-	Cyan,
-	White,
-	Reset
-};
-
-enum class Style {
-	Bold,
-	Dim,
-	Underline,
-	Blink,
-	Reverse,
-	Hidden,
-	Strikethrough,
-	Reset
-};
-
-// Function to get ANSI escape code for foreground color
-string getForegroundColor(ForegroundColor color) {
-	switch (color) {
-		case ForegroundColor::Black:     return "\033[30m";
-		case ForegroundColor::Red:       return "\033[31m";
-		case ForegroundColor::Green:     return "\033[32m";
-		case ForegroundColor::Yellow:    return "\033[33m";
-		case ForegroundColor::Blue:      return "\033[34m";
-		case ForegroundColor::Magenta:   return "\033[35m";
-		case ForegroundColor::Cyan:      return "\033[36m";
-		case ForegroundColor::White:     return "\033[37m";
-		case ForegroundColor::Reset:     return "\033[39m"; 
-	}
-	return "";
-}
-
-// Function to get ANSI escape code for background color
-string getBackgroundColor(BackgroundColor color) {
-	switch (color) {
-		case BackgroundColor::Black:     return "\033[40m";
-		case BackgroundColor::Red:       return "\033[41m";
-		case BackgroundColor::Green:     return "\033[42m";
-		case BackgroundColor::Yellow:    return "\033[43m";
-		case BackgroundColor::Blue:      return "\033[44m";
-		case BackgroundColor::Magenta:   return "\033[45m";
-		case BackgroundColor::Cyan:      return "\033[46m";
-		case BackgroundColor::White:     return "\033[47m";
-		case BackgroundColor::Reset:     return "\033[49m"; 
-	}
-	return "";
-}
-
-// Function to get ANSI escape code for style
-string getStyle(Style style) {
-	switch (style) {
-		case Style::Bold:          return "\033[1m";
-		case Style::Dim:           return "\033[2m";
-		case Style::Underline:     return "\033[4m";
-		case Style::Blink:         return "\033[5m";
-		case Style::Reverse:       return "\033[7m";
-		case Style::Hidden:        return "\033[8m";
-		case Style::Strikethrough: return "\033[9m";
-		case Style::Reset:         return "\033[0m"; 
-	}
-	return "";
-}
-
-
-//////////////////
-/// Decoration ///
-//////////////////
-class Decoration{
+//////////////
+// Position //
+//////////////
+class Position {
 private:
-	string foreground, background;
-	vector<string> styles;
+	unsigned int row_position, column_position;
 public:
-	// Setters
-	void setForeground(ForegroundColor color){
-		foreground = getForegroundColor(color);
+	Position(unsigned int row, unsigned int column) {
+		row_position = row;
+		column_position = column;
 	}
-	void setBackground(BackgroundColor color){
-		background = getBackgroundColor(color);
+
+	// Getters
+	unsigned int row() {
+		return row_position;
 	}
-	void addStyle(Style style){
-		styles.push_back(getStyle(style));
-	}
-	
-	// Clear style
-	void clearStyle(){
-		styles.clear();
-	}
-	
-	// Get Code
-	string getCode(){
-		string code = "";
-		
-		if (foreground.length() > 0) code += foreground;
-		if (background.length() > 0) code += background;
-		if(styles.size() > 0) 
-			for (unsigned int i = 0; i < styles.size(); i++) 
-				code += styles.at(i);
-		
-		return code;
+	unsigned int column() {
+		return column_position;
 	}
 };
 
 
+//////////
+// Grid //
+//////////
+class Grid {
+private:
+	vector<vector<char>> cells;
+	unsigned int size;
+public:
+	Grid(unsigned int size) {
+		this->size = size;
+		for (unsigned int i = 0; i < size; i++) {
+			vector<char> row;
+			for (unsigned int j = 0; j < size; j++) {
+				row.push_back(' ');
+			}
+			cells.push_back(row);
+		}
+	}
 
-int main()
-{
-	Decoration decor;
-	decor.setForeground(ForegroundColor::Blue);
-	decor.setBackground(BackgroundColor::Green);
-	decor.addStyle(Style::Bold);
-	decor.addStyle(Style::Underline);
-	cout << "\033[31mHello, World!" << endl;
+	// Draw filled rectangle
+	void filledRectangle(Position start, Position end, char character) {
+		if (start.row() >= 0 && end.row() < size) {
+			for (unsigned int i = start.row(); i <= end.row(); i++) {
+				for (unsigned int j = start.column(); j <= end.column(); j++) {
+					cells.at(i).at(j) = character;
+				}
+			}
+		}
+	}
+
+	// Draw follow rectangle
+	void hollowRectangle(Position start, Position end, char character) {
+		if (start.row() >= 0 && end.row() < size) {
+			for (unsigned int i = start.row(); i <= end.row(); i++) {
+				for (unsigned int j = start.column(); j <= end.column(); j++) {
+					if (i == start.row() || i == end.row()) cells.at(i).at(j) = character;
+					else if (j == start.column() || j == end.column()) cells.at(i).at(j) = character;
+				}
+			}
+		}
+	}
+
+	// Draw Line
+	void line(Position start, Position end, char character) {
+		if (start.row() >= 0 && end.row() < size) {
+			// Vertical
+			if (start.column() == end.column()) {
+				// Top to Bottom
+				if (start.row() < end.row()) {
+					for (unsigned int i = start.row(); i <= end.row(); i++) {
+						cells.at(i).at(start.column()) = character;
+					}
+				}
+				// Bottom to Top
+				else if (start.row() > end.row()) {
+					for (unsigned int i = start.row(); i >= end.row(); i--) {
+						cells.at(i).at(start.column()) = character;
+					}
+				}
+			}
+			// Horizontal
+			else if (start.row() == end.row()) {
+				// Left to Right
+				if (start.column() < end.column()) {
+					for (unsigned int i = start.column(); i <= end.column(); i++) {
+						cells.at(start.row()).at(i) = character;
+					}
+				}
+				// Right to Left
+				else if (start.column() > end.column()) {
+					for (unsigned int i = start.column(); i >= end.column(); i--) {
+						cells.at(start.row()).at(i) = character;
+					}
+				}
+			}
+			// Diagonol
+			else {
+				// Top-Left to Bottom-Right
+				if (start.column() < end.column()) {
+					unsigned int i = start.row(), j = start.column();
+					while (i <= end.row() && j <= end.column()) {
+						cells.at(i++).at(j++) = character;
+					}
+				}
+				// Top-Right to Bottom-Left
+				else if (start.column() > end.column()) {
+					unsigned int i = start.row(), j = start.column();
+					while (i <= end.row() && j >= end.column()) {
+						cells.at(i++).at(j--) = character;
+					}
+				}
+			}
+		}
+	}
+	
+	// To insert a character at specific location
+	void insert(Position position, char character){
+		if (position.row() < size && position.column() < size)
+			cells.at(position.row()).at(position.column()) = character;
+	}
+	
+	// To insert a word
+	void word(Position position, string word){
+		if (position.row() < size && position.column() < size && word.length() <= size) {
+			for (unsigned int i = 0; i < word.length(); i++)
+				cells.at(position.row()).at(position.column() + i) = word[i];
+		}
+	}
+
+	// To draw the pattern
+	void draw() {
+		for (unsigned int i = 0; i < size; i++) {
+			vector<char> row = cells.at(i);
+			for (unsigned int j = 0; j < size; j++) {
+				cout << row.at(j);
+			}
+			cout << endl;
+		}
+	}
+};
+
+
+int main() {
+	Grid pattern(16);
+
+	pattern.hollowRectangle(Position(0, 0), Position(15, 15), '*');
+	pattern.hollowRectangle(Position(2, 2), Position(13, 13), '~');
+
+	pattern.line(Position(5, 5), Position(10, 5), '@');
+	pattern.line(Position(10, 10), Position(5, 10), '$');
+	pattern.line(Position(5, 6), Position(5, 9), '%');
+	pattern.line(Position(10, 9), Position(10, 6), '&');
+	pattern.line(Position(6, 6), Position(9, 9), '#');
+	pattern.line(Position(6, 9), Position(9, 6), '?');
+	
+
+	pattern.draw();
 }
