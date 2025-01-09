@@ -161,6 +161,7 @@ int main() {
 	pattern.line(Position(6, 6), Position(9, 9), '#');
 	pattern.line(Position(6, 9), Position(9, 6), '?');
 	
-
+	pattern.word(Position(14, 2), "Talha Ahmad!");
+	
 	pattern.draw();
 }
