@@ -2,8 +2,9 @@
 
 using namespace std;
 
+int number = 0;
+
 class BankAccount{
-	int number = 0;
 private:
 	int accountNumber;
 	string accountHolderName;
