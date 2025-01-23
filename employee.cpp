@@ -11,7 +11,7 @@ protected:
 	double employeeSalary;
 public:
 	Employee(string name, double salary);
-	double calculateNetSalary();
+	virtual double calculateNetSalary();
 	void displayEmployeeDetails();
 };
 
@@ -20,8 +20,7 @@ private:
 	string department;
 public:
 	Manager(string name, double salary, string department);
-	double calculateNetSalary();
-	void displayEmployeeDetails();
+	double calculateNetSalary() override;
 };
 
 int main()
@@ -61,12 +60,3 @@ double Manager::calculateNetSalary()
 {
 	return employeeSalary + ((10 * employeeSalary) / 100);
 }
-
-void Manager::displayEmployeeDetails()
-{
-	cout << "Employee Id:\t\t" << employeeId << endl
-		 << "Department:\t\t" << department << endl
-		 << "Employee Name:\t\t" << employeeName << endl
-		 << "Employee Net Salary:\t" << calculateNetSalary() << endl;
-}
-
