@@ -68,12 +68,6 @@ GraduateStudent::GraduateStudent(string name, string thesis) : Student(name)
 
 void GraduateStudent::displayStudentDetails()
 {
-	cout << "\nStudent Id:\t" << studentId << endl
-	<< "Student Name:\t" << studentName << endl
-	<< "Thesis Title:\t" << thesisTitle << endl
-	<< "Courses Enrolled:" << endl;
-	
-	for(unsigned int i=0;i<courses.size();i++)
-		cout << i + 1 << ". " << courses.at(i) << endl;
+	Student::displayStudentDetails();
+	cout << "Thesis Title:\t" << thesisTitle << endl;
 }
-
