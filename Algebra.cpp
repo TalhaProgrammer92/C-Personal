@@ -49,10 +49,8 @@ Algebra* Algebra::getDifferentObjects(const Algebra arr[], int size, int &newSiz
 		}
 	}
 	
-	if (newSize == 0) {
-		newSize = 0;
+	if (newSize == 0)
 		return NULL;
-	}
 	
 	Algebra* newArr = new Algebra[newSize];
 	int index = 0;
