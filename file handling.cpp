@@ -28,7 +28,9 @@ int main()
 	// Reading from a file
 	ifstream file_i("sample.txt");		// Open the text file
 	string read;						// A string variale to store data of the file
-	getline(file_i, read);				// Reading from the file and store the data in 'read' variable
+	while(!file_i.eof()){
+		getline(file_i, read);			// Reading from the file and store the data in 'read' variable
+		cout << read << endl;			// Print the value stored in 'read'
+	}
 	file_i.close();						// Closing the file
-	cout << read << endl;				// Print the value stored in 'read'
 }
