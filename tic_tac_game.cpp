@@ -115,7 +115,11 @@ string getCharsSequence(char character, int range) {
 
 // Function to clear the screen
 void clear() {
-	system("cls");
+	#ifdef _WIN32
+        	system("cls");
+    	#else
+        	system("clear");
+    	#endif
 }
 
 // Function to print heading
