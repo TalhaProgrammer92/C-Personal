@@ -8,7 +8,7 @@ int main()
     int n = 4;
 
     //! Check if the number of layers is valid
-    if (n >= 1 && n <= 6)
+    if (n > 1)
     {
         //! Calculations
         int
@@ -45,7 +45,7 @@ int main()
         }
 
         //! Generate Layers
-        for (int i = 0; i < n / 2 + 1; i++)
+        for (int i = 0; i < n - 1; i++)
         {
             //! Cycle
             for (int j = 0; j < 2; j++)
@@ -78,34 +78,3 @@ int main()
 
     return 0;
 }
-
-/*
-[Output n = 3]
-
-        *
-       * *
-      *   *
-     *     *
-    * * * * *
-   *         *
-  * * * * * * *
- *             *
-* * * * * * * * *
-
-[Output n = 4]
-
-            *
-           * *
-          *   *
-         *     *
-        *       *
-       *         *
-      * * * * * * *
-     *             *
-    * * * * * * * * *
-   *                 *
-  * * * * * * * * * * *
- *                     *
-* * * * * * * * * * * * *
-
-*/
