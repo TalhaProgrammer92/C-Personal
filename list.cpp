@@ -5,38 +5,78 @@ using namespace std;
 template <class A, class B>
 class Link
 {
-	public:
-		A a;
-		B b;
+public:
+	A a;
+	B b;
 };
 
-int main() {
-	//! Variables
-	int num = 4; char chr = 'T'; float point = 1.02; string str = "Text";
+int num;
+char chr;
+float point;
+string str;
 
-	//! Objects
+class Program
+{
+private:
 	Link<int, char> l1;
-	l1.a = num; l1.b = chr;
-
 	Link<float, string> l2;
-	l2.a = point; l2.b = str;
-
 	Link<Link<int, char>, Link<float, string>> list;
-	list.a = l1; list.b = l2;
 
-	cout << "List: {";
+public:
+	Program(int n, char c, float p, string s)
+	{
+		num = n;
+		chr = c;
+		point = p;
+		str = s;
 
-	//! num
-	cout << list.a.a << ", ";
+		l1.a = num;
+		l1.b = chr;
+		l2.a = point;
+		l2.b = str;
 
-	//! chr
-	cout << list.a.b << ", ";
+		list.a = l1;
+		list.b = l2;
+	}
 
-	//! point
-	cout << list.b.a << ", ";
+	void printValue(int index)
+	{
+		switch (index)
+		{
+		case 0:
+			cout << list.a.a;
+			break;
+		case 1:
+			cout << list.a.b;
+			break;
+		case 2:
+			cout << list.b.a;
+			break;
+		case 3:
+			cout << list.b.b;
+			break;
+		}
+	}
 
-	//! str
-	cout << list.b.b << '}' << endl;
+	void printList()
+	{
+		cout << "List: {";
+		for (int i = 0; i < 4; i++)
+		{
+			printValue(i);
+
+			if (i < 3)
+				cout << ", ";
+		}
+		cout << '}' << endl;
+	}
+};
+
+int main()
+{
+	Program p(4, 'C', 1.2, "String");
+
+	p.printList();
 
 	return 0;
 }
