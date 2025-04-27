@@ -99,13 +99,18 @@ public:
     }
 };
 
+/////////////////
+// EVOD Cipher //
+/////////////////
+
+
 ////////////////
 // Algorithms //
 ////////////////
 class Layers
 {
 public:
-    //* Ceaser Cipher
+    //* Ceaser Cipher - Layer 1
     static void ceaser_cipher(string &text, bool mode = true)
     {
         for (int i = 0; i < text.length(); i++)
@@ -115,28 +120,44 @@ public:
         }
     }
 
-    //* Qwerty Cipher
+    //* Qwerty Cipher - Layer 2
     static void qwerty_cipher(string &text, bool mode = true)
     {
         QwertyCipher().parse_text(text, mode);
     }
 };
 
+//* Perform encoding/decoding
+void cipher(string &text, bool mode = true)
+{
+    if (mode)
+    {
+        cout << "\nEncoded: ";
+        
+        Layers::ceaser_cipher(text);    //! Layer 1
+        Layers::qwerty_cipher(text);    //! Layer 2
+    }
+    else
+    {
+        cout << "\nDecoded: ";
+
+        Layers::qwerty_cipher(text, mode);  //! Layer 2
+        Layers::ceaser_cipher(text, mode);  //! Layer 1
+    }
+}
+
 int main()
 {
-    string message = "Hello World!";
+    // string message = "Hello! Welcome to C.H.A.O.S Cipher";
+    string message = "\n#include<iostream>\nint main()\n{\n\tstd::cout << \"Hello, World!\" std::endl;\n}";
 
     //* Encoding
-    cout << "Encoded:\t";
-    Layers::ceaser_cipher(message);
-    Layers::qwerty_cipher(message);
+    cipher(message);
 
     cout << message << endl;
 
     //* Decoding
-    cout << "Decoded:\t";
-    Layers::qwerty_cipher(message, 0);
-    Layers::ceaser_cipher(message, 0);
+    cipher(message, 0);
 
     cout << message << endl;
 
