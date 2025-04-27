@@ -163,3 +163,23 @@ int main()
 
     return 0;
 }
+
+/*
+
+* OUTPUT
+
+Encoded: 
+^Arj]bklzAumtplh\x
+Art \hAr+
+q
+        mtkssjubt zz d"l]]uZ Vup]k$d mtksslrk]S
+w
+
+Decoded: 
+#include<iostream>
+int main()
+{
+        std::cout << "Hello, World!" std::endl;
+}
+
+*/
