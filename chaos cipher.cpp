@@ -17,6 +17,32 @@ bool is_char_exist(char &chr, vector<char> &chrs)
     return false;
 }
 
+//* Function - Extract words
+vector<string> extract_words(string &text)
+{
+    vector<string> words;
+    string word = "";
+
+    for (int i = 0; i < text.length(); i++)
+    {
+        //! If whitespace
+        if (text[i] == ' ' && word.length() > 0)
+        {
+            words.push_back(word);
+            word = "";
+            continue;
+        }
+
+        //! Add character in word
+        word += text[i];
+    }
+
+    //! Add last word
+    words.push_back(word);
+
+    return words;
+}
+
 ///////////////////
 // Qwerty Cipher //
 ///////////////////
@@ -102,7 +128,83 @@ public:
 /////////////////
 // EVOD Cipher //
 /////////////////
+class EvodCipher
+{
+    vector<string> words;
+    string *text;
 
+public:
+    //* Constructor
+    EvodCipher(string &text)
+    {
+        words = extract_words(text);
+        this->text = &text;
+    }
+
+    //* Parse words
+    void parse(bool mode = true /* 1 - Encode | 0 - Decode */)
+    {
+        if (this->words.size() > 1)
+        {
+            //! Variables
+            //* Store encoded/decoded text
+            string _text = "";
+            //* Repositioned words
+            vector<string> _words;
+            //* Size of the vector of words
+            int size = this->words.size();
+
+            //* Encode
+            if (mode)
+            {
+                //! Iterate through each word - Even index
+                for (int i = 0; i < size; i += 2)
+                    _words.push_back(this->words[i]);
+
+                //! Iterate through each word - Odd index
+                for (int i = 1; i < size; i += 2)
+                    _words.push_back(this->words[i]);
+            }
+
+            //* Decoded
+            else
+            {
+                //! Necessary variables
+                int even_pointer = 0, odd_pointer = (size % 2) ? size / 2 + 1 : size / 2, even_limit = odd_pointer, odd_limit = size;
+                /*
+
+                0 1 2 3 4 -- 5 (odd) => 0 2 4 1 3 (even: 0, odd: 3 = size / 2 + 1)
+                0 1 2 3 -- 4 (even) => 0 2 1 3 (even: 0, odd: 2 = size / 2)
+                0 1 2 -- 3 (odd) => 0 2 1 (even: 0, odd: 2 = size / 2 + 1)
+                0 1 -- 2 (even) => 0 1 (even: 0, odd 1 = size / 2)
+                0 -- 1 (odd) => 0 (even: 0, odd: null)
+
+                */
+
+                //! Reposition words to actaul position
+                while (even_pointer < even_limit || odd_pointer < odd_limit)
+                {
+                    if (even_pointer < even_limit)
+                        _words.push_back(this->words[even_pointer++]);
+                    if (odd_pointer < odd_limit)
+                        _words.push_back(this->words[odd_pointer++]);
+                }
+            }
+
+            //! Join with ' '
+            for (int i = 0; i < size; i++)
+            {
+                _text += _words[i];
+
+                if (i < size - 1)
+                    _text += ' ';
+            }
+
+            //! Assignment
+            *text = _text;
+        }
+    }
+};
 
 ////////////////
 // Algorithms //
@@ -125,6 +227,12 @@ public:
     {
         QwertyCipher().parse_text(text, mode);
     }
+
+    //* Evod Cipher - Layer 3
+    static void evod_cipher(string &text, bool mode = true)
+    {
+        EvodCipher(text).parse(mode);
+    }
 };
 
 //* Perform encoding/decoding
@@ -133,23 +241,24 @@ void cipher(string &text, bool mode = true)
     if (mode)
     {
         cout << "\nEncoded: ";
-        
-        Layers::ceaser_cipher(text);    //! Layer 1
-        Layers::qwerty_cipher(text);    //! Layer 2
+
+        Layers::ceaser_cipher(text); //! Layer 1
+        Layers::qwerty_cipher(text); //! Layer 2
+        Layers::evod_cipher(text);   //! Layer 3
     }
     else
     {
         cout << "\nDecoded: ";
 
-        Layers::qwerty_cipher(text, mode);  //! Layer 2
-        Layers::ceaser_cipher(text, mode);  //! Layer 1
+        Layers::evod_cipher(text, mode);   //! Layer 3
+        Layers::qwerty_cipher(text, mode); //! Layer 2
+        Layers::ceaser_cipher(text, mode); //! Layer 1
     }
 }
 
 int main()
 {
-    // string message = "Hello! Welcome to C.H.A.O.S Cipher";
-    string message = "\n#include<iostream>\nint main()\n{\n\tstd::cout << \"Hello, World!\" std::endl;\n}";
+    string message = "Hello! Welcome to C.H.A.O.S Cipher";
 
     //* Encoding
     cipher(message);
@@ -168,18 +277,8 @@ int main()
 
 * OUTPUT
 
-Encoded: 
-^Arj]bklzAumtplh\x
-Art \hAr+
-q
-        mtkssjubt zz d"l]]uZ Vup]k$d mtksslrk]S
-w
+Encoded: "l]]u$ tu JAg'lp Vl]ju\l JX"XHXUXM
 
-Decoded: 
-#include<iostream>
-int main()
-{
-        std::cout << "Hello, World!" std::endl;
-}
+Decoded: Hello! Welcome to C.H.A.O.S Cipher
 
 */
