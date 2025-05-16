@@ -23,28 +23,35 @@ public:
     Symbol(char symbol, int color) : symbol(symbol), color(color) {}
 
     //* Getters
-    char get_symbol()
+    char get_symbol() const
     {
         return symbol;
     }
 
-    int get_color()
+    int get_color() const
     {
         return color;
+    }
+
+    //* Operator == overloaded
+    bool operator==(const Symbol &other) const
+    {
+        return symbol == other.get_symbol();
     }
 };
 
 //* Function - Set Color
-void setColor(int color);
+void setColor(int color)
+{
+    //! Set the color of console
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, color);
+}
 
 //* Function - Clear Screen
 void clrscr()
 {
-#ifdef _WIN32
     system("cls");
-#else
-    system("clear");
-#endif
 }
 
 ///////////////////////
@@ -130,25 +137,25 @@ private:
     {
         switch (direction)
         {
-        //! Upward
-            case 'w':
-                current_position.row--;
-                break;
+            //! Upward
+        case 'w':
+            current_position.row--;
+            break;
 
-            //! Downward
-            case 's':
-                current_position.row++;
-                break;
+        //! Downward
+        case 's':
+            current_position.row++;
+            break;
 
-            //! Left
-            case 'a':
-                current_position.column--;
-                break;
+        //! Left
+        case 'a':
+            current_position.column--;
+            break;
 
-            //! Right
-            case 'd':
-                current_position.column++;
-                break;
+        //! Right
+        case 'd':
+            current_position.column++;
+            break;
         }
     }
 
@@ -189,7 +196,7 @@ public:
     {
         //! Take Input
         take_movement_input();
-        
+
         //! Switch Direction
         switch_direction();
     }
@@ -200,18 +207,40 @@ public:
         if (food.get_position() == current_position)
         {
             food.is_spawned = false;
-            length++;
+            length++;   //! Increase size/length
+            score += 5; //! Increase score
         }
     }
 
     //* Method - Remove Tail
-    void remove_tail();
+    void remove_tail(Grid &grid)
+    {
+        if (positions.size() >= length)
+        {
+            //! Get tail's position
+            Position tail(positions[0]);
+
+            //! Clear the position at grid
+            grid.set_symbol(tail, grid.get_symbol());
+
+            //! Erase 1st element
+            positions.erase(positions.begin());
+        }
+    }
 
     //* Method - Store Position
-    void store_position();
+    void store_position()
+    {
+        positions.push_back(current_position);
+    }
 
     //* Method - Wrap Indices (Ensure snake stays within bounds)
-    void wrap_indices();
+    void wrap_indices(Grid &grid)
+    {
+        int size = grid.get_size().get_center();
+        current_position.row = (current_position.row + size) % size;
+        current_position.column = (current_position.column + size) % size;
+    }
 };
 
 ///////////////////
@@ -240,6 +269,11 @@ public:
         return position;
     }
 
+    Symbol get_symbol()
+    {
+        return symbol;
+    }
+
     //* Method - Spawn randomly inside given space
     void spawn(Grid &grid)
     {
@@ -252,7 +286,7 @@ public:
                 position.column = rand() % grid.get_size().get_center();
 
             } while (grid.get_symbol(position).get_symbol() != grid.get_symbol().get_symbol());
-            
+
             grid.set_symbol(position, symbol);
             is_spawned = true;
         }
@@ -311,10 +345,40 @@ public:
     }
 
     //* Method - Initialize / Fill
-    void initialize();
+    void initialize()
+    {
+        for (int i = 0; i < size.row; i++)
+            for (int j = 0; j < size.column; j++)
+                grid[i][j] = symbol;
+    }
 
     //* Method - Display grid
-    void display();
+    void display(Snake &snake, Food &food)
+    {
+        for (int i = 0; i < size.row; i++)
+        {
+            for (int j = 0; j < size.column; j++)
+            {
+                //! Set snake's color
+                if (grid[i][j] == snake.get_symbol())
+                    setColor(snake.get_symbol().get_color());
+
+                //! Set food's color
+                else if (grid[i][j] == food.get_symbol())
+                    setColor(food.get_symbol().get_color());
+
+                //! Set background color
+                else
+                    setColor(symbol.get_color());
+
+                //! Display the symbol
+                cout << grid[i][j].get_symbol();
+            }
+            cout << endl;
+        }
+
+        setColor(15); //! Set color to white
+    }
 };
 
 ///////////////////
@@ -345,7 +409,7 @@ private:
             snake->handle_movement();
 
             //! Wrap indices to prevent unbound
-            snake->wrap_indices();
+            snake->wrap_indices(*grid);
 
             //! Check for game over
             check_game_over();
@@ -360,13 +424,13 @@ private:
             grid->set_symbol(snake->get_position(), snake->get_symbol());
 
             //! Move the snake
-            snake->remove_tail();
+            snake->remove_tail(*grid);
 
             //! Clear Screen
             clrscr();
 
             //! Display game grid
-            grid->display();
+            grid->display(*snake, *food);
 
             Sleep(speed);
         } while (snake->get_direction() != '0');
