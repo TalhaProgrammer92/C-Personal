@@ -38,6 +38,12 @@ public:
     {
         return symbol == other.get_symbol();
     }
+
+    //* Operator != overloaded
+    bool operator!=(const Symbol &other) const
+    {
+        return symbol != other.get_symbol();
+    }
 };
 
 //* Function - Set Color
@@ -176,6 +182,11 @@ public:
         return current_position;
     }
 
+    vector<Position> get_positions()
+    {
+        return positions;
+    }
+
     char get_direction()
     {
         return direction;
@@ -191,6 +202,35 @@ public:
         return score;
     }
 
+    int get_length()
+    {
+        return length;
+    }
+
+    //* Setter
+    Position set_position(const Position &position)
+    {
+        current_position = position;
+    }
+
+    //* Method - Increase Length
+    void increase_length()
+    {
+        length++;
+    }
+
+    //* Method - Erase first element in positions
+    void erase_begin()
+    {
+        positions.erase(positions.begin());
+    }
+
+    //* Method - Increase Score
+    void increase_score(const int &multiple)
+    {
+        score += multiple;
+    }
+
     //* Method - Handle movement based on its direction
     void handle_movement()
     {
@@ -201,45 +241,10 @@ public:
         switch_direction();
     }
 
-    //* Meethod - Grow Snake
-    void grow(Food &food)
-    {
-        if (food.get_position() == current_position)
-        {
-            food.is_spawned = false;
-            length++;   //! Increase size/length
-            score += 5; //! Increase score
-        }
-    }
-
-    //* Method - Remove Tail
-    void remove_tail(Grid &grid)
-    {
-        if (positions.size() >= length)
-        {
-            //! Get tail's position
-            Position tail(positions[0]);
-
-            //! Clear the position at grid
-            grid.set_symbol(tail, grid.get_symbol());
-
-            //! Erase 1st element
-            positions.erase(positions.begin());
-        }
-    }
-
     //* Method - Store Position
     void store_position()
     {
         positions.push_back(current_position);
-    }
-
-    //* Method - Wrap Indices (Ensure snake stays within bounds)
-    void wrap_indices(Grid &grid)
-    {
-        int size = grid.get_size().get_center();
-        current_position.row = (current_position.row + size) % size;
-        current_position.column = (current_position.column + size) % size;
     }
 };
 
@@ -274,22 +279,11 @@ public:
         return symbol;
     }
 
-    //* Method - Spawn randomly inside given space
-    void spawn(Grid &grid)
+    //* Method - Set random position based on given size of grid
+    void set_random_position(const int& space_size)
     {
-        if (!is_spawned)
-        {
-            do
-            {
-                //! Get random position of the food
-                position.row = rand() % grid.get_size().get_center();
-                position.column = rand() % grid.get_size().get_center();
-
-            } while (grid.get_symbol(position).get_symbol() != grid.get_symbol().get_symbol());
-
-            grid.set_symbol(position, symbol);
-            is_spawned = true;
-        }
+        position.row = rand() % space_size;
+        position.column = rand() % space_size;
     }
 };
 
@@ -351,28 +345,125 @@ public:
             for (int j = 0; j < size.column; j++)
                 grid[i][j] = symbol;
     }
+};
+
+////////////////////
+//? Logic Class
+////////////////////
+class Logic
+{
+private:
+    //* Attributes
+    Snake *snake;
+    Food *food;
+    Grid *grid;
+
+public:
+    //* Constructor
+    Logic(Snake &snake, Food &food, Grid &grid) : snake(&snake), food(&food), grid(&grid) {}
+
+    //* Meethod - Grow Snake
+    void grow_snake()
+    {
+        // if (food.get_position() == current_position)
+        // {
+        //     food.is_spawned = false;
+        //     length++;   //! Increase size/length
+        //     score += 5; //! Increase score
+        // }
+
+        if (food->get_position() == snake->get_position())
+        {
+            food->is_spawned = false;
+
+            snake->increase_length();
+
+            snake->increase_score(5);
+        }
+    }
+
+    //* Method - Wrap Indices (Ensure snake stays within bounds)
+    void wrap_indices()
+    {
+        // int size = grid.get_size().get_center();
+        // current_position.row = (current_position.row + size) % size;
+        // current_position.column = (current_position.column + size) % size;
+
+        int size = grid->get_size().get_center();
+
+        snake->set_position(Position(
+                (snake->get_position().row + size) % size,      //! Wrap row
+                (snake->get_position().column + size) % size    //! Wrap column
+            ));
+    }
+
+    //* Method - Spawn food randomly inside given space
+    void spawn_food()
+    {
+        // if (!is_spawned)
+        // {
+        //     do
+        //     {
+        //         //! Get random position of the food
+        //         position.row = rand() % grid.get_size().get_center();
+        //         position.column = rand() % grid.get_size().get_center();
+
+        //     } while (grid.get_symbol(position).get_symbol() != grid.get_symbol().get_symbol());
+
+        //     grid.set_symbol(position, symbol);
+        //     is_spawned = true;
+        // }
+
+        if (!food->is_spawned)
+        {
+            do
+            {
+                //! Get random position
+                food->set_random_position(grid->get_size().get_center());
+            } while (grid->get_symbol() != grid->get_symbol(food->get_position()));
+            
+            grid->set_symbol(food->get_position(), food->get_symbol());
+            food->is_spawned = true;
+        }
+    }
+
+    //* Method - Remove snake's tail
+    void remove_tail()
+    {
+        if (snake->get_positions().size() >= snake->get_length())
+        {
+            //! Get position of tail i.e. 1st element of snake's positions
+            Position tail_position(snake->get_positions()[0]);
+
+            //! Clear grid at tail's position
+            grid->set_symbol(tail_position, grid->get_symbol());
+
+            //! Erase the tail position
+            snake->erase_begin();
+        }
+    }
 
     //* Method - Display grid
-    void display(Snake &snake, Food &food)
+    void display_grid()
     {
-        for (int i = 0; i < size.row; i++)
+        for (int i = 0; i < grid->get_size().row; i++)
         {
-            for (int j = 0; j < size.column; j++)
+            for (int j = 0; j < grid->get_size().column; j++)
             {
                 //! Set snake's color
-                if (grid[i][j] == snake.get_symbol())
-                    setColor(snake.get_symbol().get_color());
+                if (grid->get_symbol(Position(i, j)) == snake->get_symbol())
+                    setColor(snake->get_symbol().get_color());
 
                 //! Set food's color
-                else if (grid[i][j] == food.get_symbol())
-                    setColor(food.get_symbol().get_color());
+                else if (grid->get_symbol(Position(i, j)) == food->get_symbol())
+                    setColor(food->get_symbol().get_color());
 
                 //! Set background color
                 else
-                    setColor(symbol.get_color());
+                    setColor(grid->get_symbol().get_color());
 
                 //! Display the symbol
-                cout << grid[i][j].get_symbol();
+                cout << grid->get_symbol(Position(i, j)).get_symbol();
             }
             cout << endl;
         }
@@ -391,6 +482,7 @@ private:
     Snake *snake;
     Food *food;
     Grid *grid;
+    Logic *logic;
     bool game_over;
     int speed;
 
@@ -409,28 +501,28 @@ private:
             snake->handle_movement();
 
             //! Wrap indices to prevent unbound
-            snake->wrap_indices(*grid);
+            logic->wrap_indices();
 
             //! Check for game over
             check_game_over();
 
             //! Grow the snake
-            snake->grow(*food);
+            logic->grow_snake();
 
             //! Spawn food
-            food->spawn(*grid);
+            logic->spawn_food();
 
             //! Set grid's symbol i.e. Snake
             grid->set_symbol(snake->get_position(), snake->get_symbol());
 
             //! Move the snake
-            snake->remove_tail(*grid);
+            logic->remove_tail();
 
             //! Clear Screen
             clrscr();
 
             //! Display game grid
-            grid->display(*snake, *food);
+            logic->display_grid();
 
             Sleep(speed);
         } while (snake->get_direction() != '0');
@@ -457,6 +549,7 @@ public:
         this->snake = &snake;
         this->food = &food;
         this->grid = &grid;
+        this->logic = new Logic(*this->snake, *this->food, *this->grid);
         game_over = false;
         speed = 300;
     }
