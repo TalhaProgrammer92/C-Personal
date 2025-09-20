@@ -7,13 +7,13 @@ class Node
 public:
 	// Attributes
 	int data;
-	Node* next, * previous;
+	Node* next, * prev;
 
 	// Constructors
 	Node(const int &data, Node *next = nullptr, Node *previous = nullptr)
-		: data(data), next(next), previous(previous) { }
+		: data(data), next(next), prev(previous) { }
 	Node(const Node &other)
-		: data(other.data), next(other.next), previous(other.previous) { }
+		: data(other.data), next(other.next), prev(other.prev) { }
 };
 
 class List
@@ -36,7 +36,7 @@ public:
 			head = tail = node;
 		else
 		{
-			head->previous = node;
+			head->prev = node;
 			node->next = head;
 			head = node;
 		}
@@ -51,7 +51,7 @@ public:
 		else
 		{
 			tail->next = node;
-			node->previous = tail;
+			node->prev = tail;
 			tail = node;
 		}
 	}
@@ -69,8 +69,8 @@ public:
 		else
 		{
 			node = tail;
-			tail = tail->previous;
-			tail->next = node->previous = nullptr;
+			tail = tail->prev;
+			tail->next = node->prev = nullptr;
 		}
 
 		if (node != nullptr)
@@ -89,7 +89,7 @@ public:
 		{
 			node = head;
 			head = head->next;
-			head->previous = node->next = nullptr;
+			head->prev = node->next = nullptr;
 		}
 
 		if (node != nullptr)

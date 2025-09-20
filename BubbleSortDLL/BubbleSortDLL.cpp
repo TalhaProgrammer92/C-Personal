@@ -16,13 +16,23 @@ void sort(List& list)
 
             if (node->data > node->next->data)
             {
-                /*Node* temp = node->next;
+                Node* small = node->next, * head = node->prev, * tail = small->next;
 
-                node->next = temp->next;
-                temp->next = node;
+                // Update large
+                node->next = tail;
+                node->prev = small;
 
-                node->previous = temp;
-                temp->previous = node->previous;*/
+                // Update small
+                small->next = node;
+                small->prev = head;
+
+                // Update head
+                if (head != nullptr)
+                    head->next = small;
+
+                // Update tail
+                if (tail != nullptr)
+                    tail->prev = node;
                 
                 swapped = true;
             }
